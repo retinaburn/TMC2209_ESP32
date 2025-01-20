@@ -1,5 +1,6 @@
 from tmc.TMC_2209_StepperDriver import *
 import time
+import sys
 
 
 print("---")
@@ -14,8 +15,9 @@ print("---")
 # initiate the TMC_2209 class
 # use your pins for pin_step, pin_dir, pin_en here
 #-----------------------------------------------------------------------
-tmc = TMC_2209(18, 19, 22)
-
+tmc1 = TMC_2209(18, 19, 0, 0) # you can populate pin_en, but I just tied it to ground
+tmc2 = TMC_2209(22, 23, 0, 2) # you can populate pin_en, but I just tied it to ground
+print("Constructed")
 
 
 
@@ -25,8 +27,11 @@ tmc = TMC_2209(18, 19, 22)
 # set whether the movement should be relative or absolute
 # both optional
 #-----------------------------------------------------------------------
-tmc.setLoglevel(Loglevel.info)
-tmc.setMovementAbsRel(MovementAbsRel.absolute)
+tmc1.setLoglevel(Loglevel.info)
+tmc1.setMovementAbsRel(MovementAbsRel.absolute)
+
+tmc2.setLoglevel(Loglevel.info)
+tmc2.setMovementAbsRel(MovementAbsRel.absolute)
 
 #     none = 0
 #     error = 10
@@ -40,15 +45,23 @@ tmc.setMovementAbsRel(MovementAbsRel.absolute)
 #-----------------------------------------------------------------------
 # these functions change settings in the TMC register
 #-----------------------------------------------------------------------
-tmc.setDirection_reg(False)
-tmc.setVSense(True)
-tmc.setCurrent(600)
-tmc.setIScaleAnalog(True)
-tmc.setInterpolation(True)
-tmc.setSpreadCycle(False)
-tmc.setMicrosteppingResolution(1)
-tmc.setInternalRSense(False)
+tmc1.setDirection_reg(False)
+tmc1.setVSense(True)
+tmc1.setCurrent(600)
+tmc1.setIScaleAnalog(True)
+tmc1.setInterpolation(True)
+tmc1.setSpreadCycle(False)
+tmc1.setMicrosteppingResolution(1)
+tmc1.setInternalRSense(False)
 
+tmc2.setDirection_reg(False)
+tmc2.setVSense(True)
+tmc2.setCurrent(600)
+tmc2.setIScaleAnalog(True)
+tmc2.setInterpolation(True)
+tmc2.setSpreadCycle(False)
+tmc2.setMicrosteppingResolution(1)
+tmc2.setInternalRSense(False)
 
 print("---\n---")
 
@@ -59,10 +72,17 @@ print("---\n---")
 #-----------------------------------------------------------------------
 # these functions read and print the current settings in the TMC register
 #-----------------------------------------------------------------------
-tmc.readIOIN()
-tmc.readCHOPCONF()
-tmc.readDRVSTATUS()
-tmc.readGCONF()
+tmc1.readIOIN()
+tmc1.readCHOPCONF()
+tmc1.readDRVSTATUS()
+tmc1.readGCONF()
+
+print("---\n---")
+
+tmc2.readIOIN()
+tmc2.readCHOPCONF()
+tmc2.readDRVSTATUS()
+tmc2.readGCONF()
 
 print("---\n---")
 
@@ -73,18 +93,24 @@ print("---\n---")
 #-----------------------------------------------------------------------
 # set the Accerleration and maximal Speed
 #-----------------------------------------------------------------------
-tmc.setAcceleration(2000)
-tmc.setMaxSpeed(500)
+tmc1.setAcceleration(2000)
+tmc1.setMaxSpeed(500)
 
+tmc2.setAcceleration(2000)
+tmc2.setMaxSpeed(500)
 
+tmc2.setAcceleration(2000)
+tmc2.setMaxSpeed(500)
 
-
+tmc1.setMotorEnabled(False)
+tmc2.setMotorEnabled(False)
 
 #-----------------------------------------------------------------------
 # activate the motor current output
 #-----------------------------------------------------------------------
-tmc.setMotorEnabled(True)
+tmc1.setMotorEnabled(True)
 
+tmc2.setMotorEnabled(True)
 
 
 
@@ -96,13 +122,26 @@ tmc.setMotorEnabled(True)
 # 3. param: is the callback function (threaded)
 # 4. param (optional): min speed threshold (in steptime measured  in  clock  cycles)
 #-----------------------------------------------------------------------
-def my_callback(channel):  
+def my_callback1(channel):  
     print("StallGuard!")
-    tmc.stop()
+    tmc1.stop()
 
-tmc.setStallguard_Callback(13, 50, my_callback) # after this function call, StallGuard is active
+def my_callback2(channel):  
+    print("StallGuard!")
+    tmc2.stop()
 
-finishedsuccessfully = tmc.runToPositionSteps(4000, MovementAbsRel.relative)    #move 4000 steps forward
+tmc1.setStallguard_Callback(13, 50, my_callback1) # after this function call, StallGuard is active
+
+finishedsuccessfully = tmc1.runToPositionSteps(4000, MovementAbsRel.relative)    #move 4000 steps forward
+
+if(finishedsuccessfully == True):
+    print("Movement finished successfully")
+else:
+    print("Movement was not completed")
+
+tmc2.setStallguard_Callback(13, 50, my_callback2) # after this function call, StallGuard is active
+
+finishedsuccessfully = tmc2.runToPositionSteps(4000, MovementAbsRel.relative)    #move 4000 steps forward
 
 if(finishedsuccessfully == True):
     print("Movement finished successfully")
@@ -112,11 +151,11 @@ else:
 
 
 
-
 #-----------------------------------------------------------------------
 # deactivate the motor current output
 #-----------------------------------------------------------------------
-tmc.setMotorEnabled(False)
+tmc1.setMotorEnabled(False)
+#tmc2.setMotorEnabled(False)
 
 print("---\n---")
 
@@ -127,7 +166,7 @@ print("---\n---")
 #-----------------------------------------------------------------------
 # deinitiate the TMC_2209 class
 #-----------------------------------------------------------------------
-del tmc
+del tmc1
 
 print("---")
 print("SCRIPT FINISHED")
