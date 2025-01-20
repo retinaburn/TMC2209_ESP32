@@ -14,7 +14,7 @@ print("---")
 # initiate the TMC_2209 class
 # use your pins for pin_step, pin_dir, pin_en here
 #-----------------------------------------------------------------------
-tmc = TMC_2209(18, 19, 0) # you can populate pin_en, but I just tied it to ground
+tmc = TMC_2209(22, 23, 0, 2)
 
 
 
@@ -26,7 +26,7 @@ tmc = TMC_2209(18, 19, 0) # you can populate pin_en, but I just tied it to groun
 # both optional
 #-----------------------------------------------------------------------
 tmc.setLoglevel(Loglevel.debug)
-tmc.setMovementAbsRel(MovementAbsRel.relative)
+tmc.setMovementAbsRel(MovementAbsRel.absolute)
 
 
 
@@ -37,11 +37,11 @@ tmc.setMovementAbsRel(MovementAbsRel.relative)
 #-----------------------------------------------------------------------
 tmc.setDirection_reg(False)
 tmc.setVSense(True)
-tmc.setCurrent(200)
+tmc.setCurrent(300)
 tmc.setIScaleAnalog(True)
 tmc.setInterpolation(True)
 tmc.setSpreadCycle(False)
-tmc.setMicrosteppingResolution(1)
+tmc.setMicrosteppingResolution(2)
 tmc.setInternalRSense(False)
 
 
@@ -52,51 +52,12 @@ print("---\n---")
 
 
 #-----------------------------------------------------------------------
-# these functions read and print the current settings in the TMC register
+# this function test whether the connection of the DIR, STEP and EN pin
+# between Raspberry Pi and TMC driver is working
 #-----------------------------------------------------------------------
-#tmc.readIOIN()
-#tmc.readCHOPCONF()
-#tmc.readDRVSTATUS()
-#tmc.readGCONF()
+tmc.testDirStepEn()
 
 print("---\n---")
-
-
-
-
-
-#-----------------------------------------------------------------------
-# set the Accerleration and maximal Speed
-#-----------------------------------------------------------------------
-tmc.setAcceleration(2000)
-tmc.setMaxSpeed(500)
-
-
-
-
-
-#-----------------------------------------------------------------------
-# activate the motor current output
-#-----------------------------------------------------------------------
-tmc.setMotorEnabled(True)
-
-
-
-
-
-#-----------------------------------------------------------------------
-# move the motor 1 revolution
-#-----------------------------------------------------------------------
-tmc.runToPositionSteps(800)                             #move to position 400
-tmc.runToPositionSteps(0)                               #move to position 0
-
-
-tmc.runToPositionSteps(1000, MovementAbsRel.relative)    #move 400 steps forward
-tmc.runToPositionSteps(-600, MovementAbsRel.relative)   #move 400 steps backward
-
-
-tmc.runToPositionSteps(400)                             #move to position 400
-tmc.runToPositionSteps(0)                               #move to position 0
 
 
 
